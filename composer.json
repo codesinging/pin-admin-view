@@ -1,0 +1,24 @@
+{
+    "name": "codesinging/pin-admin-view",
+    "description": "pin-admin-view",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "codesinging",
+            "email": "codesinging@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">7.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "CodeSinging\\PinAdminView\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "CodeSinging\\PinAdminView\\Tests\\": "tests"
+        }
+    }
+}
