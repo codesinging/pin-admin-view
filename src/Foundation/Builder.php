@@ -7,13 +7,11 @@
 namespace CodeSinging\PinAdminView\Foundation;
 
 use Closure;
-use CodeSinging\PinAdminView\Support\CallClosure;
 use Illuminate\Config\Repository;
 use Illuminate\Support\Str;
 
 class Builder extends Buildable
 {
-    use CallClosure;
     use Directive;
 
     /**
@@ -489,7 +487,7 @@ class Builder extends Buildable
     public function slot(string $name, $content, string $prop = null): self
     {
         if ($content instanceof Closure) {
-            $content = $this->callClosure($content, new Content());
+            $content = call_closure($content, new Content());
         }
 
         $attributes = is_null($prop) ? ["#{$name}"] : ["#{$name}" => $prop];
@@ -578,6 +576,36 @@ class Builder extends Buildable
     public static function builders(): array
     {
         return self::$builders;
+    }
+
+    /**
+     * The methods to set properties.
+     *
+     * @param string $name
+     * @param array $arguments
+     *
+     * @return $this
+     */
+    public function __call(string $name, array $arguments): self
+    {
+        if (Str::contains($name, '_')) {
+            $this->set(Str::kebab(Str::before($name, '_')), Str::after($name, '_'));
+        } elseif (preg_match('/on[A-Z][a-zA-Z]+/', $name)) {
+            $event = lcfirst(substr($name, 2));
+            if (count($arguments) > 1) {
+                $handler = $arguments[0] . '(';
+                array_shift($arguments);
+                $handler .= implode(', ', $arguments);
+                $handler .= ')';
+            } else {
+                $handler = $arguments[0] ?? $event;
+            }
+            $this->vOn($event, $handler);
+        } else {
+            $this->set(Str::kebab($name), $arguments[0] ?? true);
+        }
+
+        return $this;
     }
 
     /**

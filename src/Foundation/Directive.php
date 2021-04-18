@@ -113,7 +113,7 @@ trait Directive
 
         if (is_array($event)) {
             foreach ($event as $key => $value) {
-                $this->attr([Str::start($key, '@') => $value]);
+                $this->attr([Str::start(Str::kebab($key), '@') => $value]);
             }
         }
         return $this;

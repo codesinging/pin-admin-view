@@ -4,12 +4,7 @@
  * Github: https://github.com/codesinging
  */
 
-namespace CodeSinging\PinAdminView\Support;
-
-use Closure;
-
-trait CallClosure
-{
+if (!function_exists('call_closure')) {
     /**
      * Call a user function given by the first parameter, and the second parameter serve as the user function's parameter.
      * If the closure function does not has a return or return null, then this function return the second parameter.
@@ -19,7 +14,7 @@ trait CallClosure
      *
      * @return mixed
      */
-    public function callClosure(Closure $closure, $parameters = null)
+    function call_closure(Closure $closure, $parameters = null)
     {
         return call_user_func($closure, $parameters) ?? $parameters;
     }

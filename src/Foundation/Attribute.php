@@ -7,12 +7,9 @@
 namespace CodeSinging\PinAdminView\Foundation;
 
 use Closure;
-use CodeSinging\PinAdminView\Support\CallClosure;
 
 class Attribute extends Buildable
 {
-    use CallClosure;
-
     /**
      * @var array All of the attribute items.
      */
@@ -49,7 +46,7 @@ class Attribute extends Buildable
     {
         if (!empty($key)) {
             if ($key instanceof Closure) {
-                $key = $this->callClosure($key, new self());
+                $key = call_closure($key, new self());
             }
 
             if ($key instanceof self) {

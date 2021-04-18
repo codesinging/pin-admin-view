@@ -7,13 +7,10 @@
 namespace CodeSinging\PinAdminView\Foundation;
 
 use Closure;
-use CodeSinging\PinAdminView\Support\CallClosure;
 use Illuminate\Support\Arr;
 
 class Content extends Buildable
 {
-    use CallClosure;
-
     /**
      * @var array All of the content items.
      */
@@ -64,7 +61,7 @@ class Content extends Buildable
         }
 
         if ($content instanceof Closure) {
-            $content = $this->callClosure($content, new self());
+            $content = call_closure($content, new self());
         }
 
         return (string)$content;

@@ -6,20 +6,17 @@
 
 namespace CodeSinging\PinAdminView\Tests\Support;
 
-use CodeSinging\PinAdminView\Support\CallClosure;
 use Orchestra\Testbench\TestCase;
 
-class CallClosureTest extends TestCase
+class HelpersTest extends TestCase
 {
-    use CallClosure;
-
     public function testCallClosure()
     {
-        self::assertEquals('a', $this->callClosure(function () {
+        self::assertEquals('a', call_closure(function () {
             return 'a';
         }));
 
-        self::assertEquals('a', $this->callClosure(function () {
+        self::assertEquals('a', call_closure(function () {
         }, 'a'));
     }
 }

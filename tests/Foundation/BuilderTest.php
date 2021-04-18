@@ -25,11 +25,11 @@ class BuilderTest extends TestCase
         self::assertInstanceOf(Css::class, (new TestClassAttribute())->css);
         self::assertInstanceOf(Style::class, (new TestClassAttribute())->style);
         self::assertInstanceOf(Attribute::class, (new TestClassAttribute())->attribute);
-        self::assertEquals(['id' =>1], (new TestClassAttribute())->attributes());
+        self::assertEquals(['id' => 1], (new TestClassAttribute())->attributes());
         self::assertInstanceOf(Repository::class, (new TestClassAttribute())->property);
-        self::assertEquals(['id' =>1], (new TestClassAttribute())->properties());
+        self::assertEquals(['id' => 1], (new TestClassAttribute())->properties());
         self::assertInstanceOf(Repository::class, (new TestClassAttribute())->config);
-        self::assertEquals(['id' =>1], (new TestClassAttribute())->configs());
+        self::assertEquals(['id' => 1], (new TestClassAttribute())->configs());
         self::assertEquals('', new TestClassAttribute());
         self::assertInstanceOf(Content::class, (new TestClassAttribute())->content);
     }
@@ -174,10 +174,10 @@ class BuilderTest extends TestCase
         self::assertEquals('<template #title>Title</template>', (new Builder())->slot('title', 'Title')->contents());
         self::assertEquals('<template #title>hello world</template>', (new Builder())->slot('title', ['hello', ' ', 'world'])->contents());
         self::assertEquals('<template #title><div>Title</div></template>', (new Builder())->slot('title', new Builder('div', 'Title'))->contents());
-        self::assertEquals('<template #title>Title</template>', (new Builder())->slot('title', function (){
+        self::assertEquals('<template #title>Title</template>', (new Builder())->slot('title', function () {
             return 'Title';
         })->contents());
-        self::assertEquals('<template #title>Title</template>', (new Builder())->slot('title', function (Content $content){
+        self::assertEquals('<template #title>Title</template>', (new Builder())->slot('title', function (Content $content) {
             $content->add('Title');
         })->contents());
         self::assertEquals('<template #title="prop">Title</template>', (new Builder())->slot('title', 'Title', 'prop')->contents());
@@ -232,6 +232,22 @@ class BuilderTest extends TestCase
         $builder = (new Builder('div'))->build();
         self::assertInstanceOf(Builder::class, last(Builder::builders()));
         self::assertEquals($builder, last(Builder::builders()));
+    }
+
+    public function testCall()
+    {
+        self::assertEquals('small', (new TestCall())->size('small')->get('size'));
+        self::assertTrue((new TestCall())->disabled()->get('disabled'));
+
+        self::assertEquals('small', (new TestCall())->size_small()->get('size'));
+        self::assertEquals('medium', (new TestCall())->size_medium()->get('size'));
+
+        self::assertEquals('primary', (new TestCall())->type_primary()->get('type'));
+        self::assertEquals('success', (new TestCall())->type_success()->get('type'));
+
+        self::assertEquals('<div @click="click"></div>', (new TestCall('div'))->onClick()->build());
+        self::assertEquals('<div @select="onSelect"></div>', (new TestCall('div'))->onSelect('onSelect'));
+        self::assertEquals('<div @page-change="onPageChange(1, \'lists.size\')"></div>', (new TestCall('div'))->onPageChange('onPageChange', 1, "'lists.size'")->build());
     }
 
     public function testInitialize()
@@ -319,6 +335,25 @@ class TestBaseTag extends Builder
 class TestFullTag extends Builder
 {
     protected $tagPrefix = 'el-';
+}
+
+/**
+ * Class TestCall
+ *
+ * @method $this size(string $size)
+ * @method $this disabled()
+ * @method $this size_small()
+ * @method $this size_medium()
+ * @method $this type_primary()
+ * @method $this type_success()
+ * @method $this onClick()
+ * @method $this onSelect(string $handler)
+ * @method $this onPageChange(string $handler, int $page, string $size)
+ *
+ * @package CodeSinging\PinAdminView\Tests\Foundation
+ */
+class TestCall extends Builder
+{
 }
 
 class TestInitialize extends Builder
