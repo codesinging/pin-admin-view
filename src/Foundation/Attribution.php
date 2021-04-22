@@ -17,18 +17,21 @@ class Attribution extends Buildable
 
     /**
      * The attribution name.
+     *
      * @var string
      */
     protected $name;
 
     /**
      * The attribution value.
+     *
      * @var mixed
      */
     protected $value;
 
     /**
      * If the attribution is a property.
+     *
      * @var bool
      */
     protected $isProperty = false;
@@ -54,34 +57,34 @@ class Attribution extends Buildable
     {
         $this->isProperty = $isProperty;
 
-        if (Str::startsWith($name, self::PROPERTY_PREFIX)){
+        if (Str::startsWith($name, self::PROPERTY_PREFIX)) {
             $this->name = substr($name, 1);
             $this->isProperty = true;
         } else {
             $this->name = $name;
         }
 
-        if (is_string($value)){
-            if (Str::startsWith($value, self::PROPERTY_PREFIX)){
+        if (is_string($value)) {
+            if (Str::startsWith($value, self::PROPERTY_PREFIX)) {
                 $this->value = substr($value, 1);
                 $this->isProperty = true;
-            } elseif (Str::startsWith($value, ['\:', '\\'])){
+            } elseif (Str::startsWith($value, ['\:', '\\'])) {
                 $this->value = substr($value, 1);
             } else {
                 $this->value = $value;
             }
-        } elseif ($value === true){
+        } elseif ($value === true) {
             $this->value = 'true';
             $this->isProperty = true;
-        } elseif ($value === false){
+        } elseif ($value === false) {
             $this->value = 'false';
             $this->isProperty = true;
-        } elseif (is_int($value) || is_float($value) || is_double($value)){
+        } elseif (is_int($value) || is_float($value) || is_double($value)) {
             $this->value = (string)$value;
             $this->isProperty = true;
-        } elseif (is_null($value) && $this->isProperty === true){
+        } elseif (is_null($value) && $this->isProperty === true) {
             $this->value = 'true';
-        } elseif (is_array($value)){
+        } elseif (is_array($value)) {
             $this->value = json_encode($value);
             $this->isProperty = true;
         }
@@ -142,17 +145,17 @@ class Attribution extends Buildable
      */
     public function build(): string
     {
-        if (empty($this->name)){
+        if (empty($this->name)) {
             return '';
         }
 
-        if (is_null($this->value)){
+        if (is_null($this->value)) {
             return sprintf('%s', $this->name);
         }
 
-        if ($this->isProperty){
+        if ($this->isProperty) {
             return sprintf(':%s="%s"', $this->name, $this->value);
-        } else{
+        } else {
             return sprintf('%s="%s"', $this->name, $this->value);
         }
     }
