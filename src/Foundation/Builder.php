@@ -71,34 +71,6 @@ class Builder extends Buildable
     protected $attributes = [];
 
     /**
-     * The property instance.
-     *
-     * @var Repository
-     */
-    public $property;
-
-    /**
-     * The initial properties.
-     *
-     * @var array
-     */
-    protected $properties = [];
-
-    /**
-     * The builder configuration repository.
-     *
-     * @var Repository
-     */
-    public $config;
-
-    /**
-     * The builder's initial configuration.
-     *
-     * @var array
-     */
-    protected $configs = [];
-
-    /**
      * The Content instance.
      *
      * @var Content
@@ -113,41 +85,6 @@ class Builder extends Buildable
     protected $buildable = true;
 
     /**
-     * The namespace in the view's data.
-     *
-     * @var string
-     */
-    const BUILDER_NAMESPACE = 'builders';
-
-    /**
-     * The builder index.
-     *
-     * @var int
-     */
-    protected static $builderCount = 0;
-
-    /**
-     * The builder index.
-     *
-     * @var int
-     */
-    protected $builderIndex;
-
-    /**
-     * The builder id.
-     *
-     * @var string
-     */
-    protected $builderId;
-
-    /**
-     * All the builders.
-     *
-     * @var Builder[]
-     */
-    protected static $builders = [];
-
-    /**
      * Builder constructor.
      *
      * @param string|array|null $tag
@@ -158,8 +95,6 @@ class Builder extends Buildable
      */
     public function __construct($tag = null, $attributes = null, $content = null, bool $closing = null, bool $linebreak = null)
     {
-        $this->builderIndex = ++self::$builderCount;
-
         if (is_string($attributes)) {
             $content = $attributes;
             $attributes = null;
@@ -177,59 +112,12 @@ class Builder extends Buildable
         $this->css = new Css();
         $this->style = new Style();
 
-        $this->attribute = new Attribute($this->attributes, $attributes);
-        $this->property = new Repository($this->properties);
-        $this->config = new Repository($this->configs);
+        $this->attribute = new Attribute($this->attributes);
+        $this->attribute->set($attributes);
+
         $this->content = new Content($content);
 
         $this->initialize();
-    }
-
-    /**
-     * Get the builder count.
-     *
-     * @return int
-     */
-    public function builderCount(): int
-    {
-        return self::$builderCount;
-    }
-
-    /**
-     * Get the builder index.
-     *
-     * @return int
-     */
-    public function builderIndex(): int
-    {
-        return $this->builderIndex;
-    }
-
-    /**
-     * Get the automatic builder id.
-     *
-     * @return string
-     */
-    public function autoBuilderId(): string
-    {
-        return sprintf('comp_%s_%s', $this->builderIndex(), str_replace('-', '_', $this->fullTag()));
-    }
-
-    /**
-     * Get or set the builder id.
-     *
-     * @param string|null $builderId
-     *
-     * @return string|$this
-     */
-    public function builderId(string $builderId = null)
-    {
-        if (is_null($builderId)) {
-            return $this->builderId ?: $this->autoBuilderId();
-        }
-
-        $this->builderId = $builderId;
-        return $this;
     }
 
     /**
@@ -327,43 +215,6 @@ class Builder extends Buildable
     }
 
     /**
-     * Set or get attribute value.
-     * Get the Attribute instance.
-     *
-     * @param null|string|array $key
-     * @param mixed $value
-     *
-     * @return $this|Attribute|mixed
-     */
-    public function attr($key = null, $value = null)
-    {
-        if (is_null($key)) {
-            return $this->attribute;
-        }
-
-        if (is_string($key)) {
-            return $this->attribute->get($key, $value);
-        }
-
-        if (is_array($key)) {
-            $this->attribute->set($key);
-            return $this;
-        }
-
-        return $this->attribute;
-    }
-
-    /**
-     * Get all attributes items of the builder.
-     *
-     * @return array
-     */
-    public function attributes(): array
-    {
-        return $this->attribute->all();
-    }
-
-    /**
      * Set property values.
      *
      * @param array|string $key
@@ -373,7 +224,7 @@ class Builder extends Buildable
      */
     public function set($key, $value = null): self
     {
-        $this->property->set($key, $value);
+        $this->attribute->set($key, $value);
         return $this;
     }
 
@@ -387,53 +238,16 @@ class Builder extends Buildable
      */
     public function get(string $key, $default = null)
     {
-        return $this->property->get($key, $default);
+        return $this->attribute->get($key, $default);
     }
 
     /**
-     * Get all properties of the builder.
-     *
+     * Get all the attributes.
      * @return array
      */
-    public function properties(): array
+    public function attributes(): array
     {
-        return $this->property->all();
-    }
-
-    /**
-     * Set/get configuration value or get the configuration repository instance.
-     *
-     * @param null|string|array $key
-     * @param mixed $value
-     *
-     * @return $this|Repository|mixed
-     */
-    public function config($key = null, $value = null)
-    {
-        if (is_null($key)) {
-            return $this->config;
-        }
-
-        if (is_string($key)) {
-            return $this->config->get($key, $value);
-        }
-
-        if (is_array($key)) {
-            $this->config->set($key);
-            return $this;
-        }
-
-        return $this->config;
-    }
-
-    /**
-     * Get all configurations.
-     *
-     * @return array
-     */
-    public function configs(): array
-    {
-        return $this->config->all();
+        return $this->attribute->all();
     }
 
     /**
@@ -510,42 +324,6 @@ class Builder extends Buildable
     }
 
     /**
-     * Get the builder key of the data in the view.
-     *
-     * @param string|null $path
-     *
-     * @return string
-     */
-    public function builderKey(string $path = null): string
-    {
-        return self::BUILDER_NAMESPACE . '.' . $this->builderId() . ($path ? '.' . $path : '');
-    }
-
-    /**
-     * Get the property key.
-     *
-     * @param string|null $key
-     *
-     * @return string
-     */
-    public function propertyKey(string $key = null): string
-    {
-        return $this->builderKey('properties' . ($key ? '.' . $key : ''));
-    }
-
-    /**
-     * Get the configuration key.
-     *
-     * @param string|null $key
-     *
-     * @return string
-     */
-    public function configKey(string $key = null): string
-    {
-        return $this->builderKey('configs' . ($key ? '.' . $key : ''));
-    }
-
-    /**
      * Determine whether the builder is buildable.
      *
      * @param bool $buildable
@@ -566,16 +344,6 @@ class Builder extends Buildable
     public function isBuildable(): bool
     {
         return $this->buildable;
-    }
-
-    /**
-     * Get all the builders.
-     *
-     * @return Builder[]
-     */
-    public static function builders(): array
-    {
-        return self::$builders;
     }
 
     /**
@@ -635,28 +403,13 @@ class Builder extends Buildable
 
         $this->ready();
 
-        self::$builders[] = $this;
-
         if (!$this->css->isEmpty()) {
-            $this->attr(['class' => $this->css->build()]);
+            $this->set(['class' => $this->css->build()]);
         }
 
         if (!$this->style->isEmpty()) {
-            $this->attr(['style' => $this->style->build()]);
+            $this->set(['style' => $this->style->build()]);
         }
-
-        if (!empty($this->properties())) {
-            $this->attr(['v-bind' => $this->builderKey('properties')]);
-        }
-
-        $this->attribute->placeholder([
-            '*.' => $this->builderKey() . '.',
-            '\*\.' => '*.',
-            '@.' => $this->propertyKey() . '.',
-            '\@\.' => '@.',
-            '#.' => $this->configKey() . '.',
-            '\#\.' => '#.',
-        ]);
 
         if ($this->linebreak) {
             $this->content->linebreak();

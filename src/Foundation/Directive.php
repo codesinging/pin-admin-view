@@ -19,7 +19,7 @@ trait Directive
      */
     public function vText(string $value): self
     {
-        $this->attr(['v-text' => $value]);
+        $this->set(['v-text' => $value]);
         return $this;
     }
 
@@ -32,7 +32,7 @@ trait Directive
      */
     public function vHtml(string $value): self
     {
-        $this->attr(['v-html' => $value]);
+        $this->set(['v-html' => $value]);
         return $this;
     }
 
@@ -45,7 +45,7 @@ trait Directive
      */
     public function vShow(string $value): self
     {
-        $this->attr(['v-show' => $value]);
+        $this->set(['v-show' => $value]);
         return $this;
     }
 
@@ -58,7 +58,7 @@ trait Directive
      */
     public function vIf(string $value): self
     {
-        $this->attr(['v-if' => $value]);
+        $this->set(['v-if' => $value]);
         return $this;
     }
 
@@ -71,7 +71,7 @@ trait Directive
      */
     public function vElseIf(string $value): self
     {
-        $this->attr(['v-else-if' => $value]);
+        $this->set(['v-else-if' => $value]);
         return $this;
     }
 
@@ -82,7 +82,7 @@ trait Directive
      */
     public function vElse(): self
     {
-        $this->attr(['v-else']);
+        $this->set(['v-else']);
         return $this;
     }
 
@@ -95,7 +95,7 @@ trait Directive
      */
     public function vFor(string $value): self
     {
-        $this->attr(['v-for' => $value]);
+        $this->set(['v-for' => $value]);
         return $this;
     }
 
@@ -113,7 +113,7 @@ trait Directive
 
         if (is_array($event)) {
             foreach ($event as $key => $value) {
-                $this->attr([Str::start(Str::kebab($key), '@') => $value]);
+                $this->set([Str::start(Str::kebab($key), '@') => $value]);
             }
         }
         return $this;
@@ -167,7 +167,7 @@ trait Directive
 
         if (is_array($name)) {
             foreach ($name as $key => $value) {
-                $this->attr([Str::start($key, ':') => $value]);
+                $this->set([Str::start($key, ':') => $value]);
             }
         }
         return $this;
@@ -184,7 +184,7 @@ trait Directive
     public function vModel(string $model, string $modifier = null): self
     {
         $key = 'v-model' . ($modifier ? '.' . $modifier : '');
-        $this->attr([$key => $model]);
+        $this->set([$key => $model]);
         return $this;
     }
 
@@ -195,7 +195,7 @@ trait Directive
      */
     public function vPre(): self
     {
-        $this->attr(['v-pre']);
+        $this->set(['v-pre']);
         return $this;
     }
 
@@ -206,7 +206,7 @@ trait Directive
      */
     public function vCloak(): self
     {
-        $this->attr(['v-cloak']);
+        $this->set(['v-cloak']);
         return $this;
     }
 
@@ -217,20 +217,20 @@ trait Directive
      */
     public function vOnce(): self
     {
-        $this->attr(['v-once']);
+        $this->set(['v-once']);
         return $this;
     }
 
     /**
      * Add ref attribute.
      *
-     * @param string|null $name
+     * @param string $name
      *
      * @return $this
      */
-    public function ref(string $name = null): self
+    public function ref(string $name): self
     {
-        $this->attr(['ref' => $name ?? $this->builderId()]);
+        $this->set(['ref' => $name]);
         return $this;
     }
 }

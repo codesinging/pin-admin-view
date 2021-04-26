@@ -25,44 +25,8 @@ class BuilderTest extends TestCase
         self::assertInstanceOf(Css::class, (new TestClassAttribute())->css);
         self::assertInstanceOf(Style::class, (new TestClassAttribute())->style);
         self::assertInstanceOf(Attribute::class, (new TestClassAttribute())->attribute);
-        self::assertEquals(['id' => 1], (new TestClassAttribute())->attributes());
-        self::assertInstanceOf(Repository::class, (new TestClassAttribute())->property);
-        self::assertEquals(['id' => 1], (new TestClassAttribute())->properties());
-        self::assertInstanceOf(Repository::class, (new TestClassAttribute())->config);
-        self::assertEquals(['id' => 1], (new TestClassAttribute())->configs());
         self::assertEquals('', new TestClassAttribute());
         self::assertInstanceOf(Content::class, (new TestClassAttribute())->content);
-    }
-
-    public function testBuilderCount()
-    {
-        $builderOneCount = (new Builder())->builderCount();
-        $builderTwoCount = (new Builder())->builderCount();
-
-        self::assertIsInt($builderOneCount);
-        self::assertIsInt($builderTwoCount);
-        self::assertEquals($builderTwoCount, $builderOneCount + 1);
-    }
-
-    public function testBuilderIndex()
-    {
-        $builderOneIndex = (new Builder())->builderIndex();
-        $builderTwoIndex = (new Builder())->builderIndex();
-
-        self::assertIsInt($builderOneIndex);
-        self::assertIsInt($builderTwoIndex);
-        self::assertEquals($builderTwoIndex, $builderOneIndex + 1);
-    }
-
-    public function testAutoBuilderId()
-    {
-        self::assertMatchesRegularExpression("/comp_[0-9]+_div/", (new Builder('div'))->builderId());
-    }
-
-    public function testBuilderId()
-    {
-        self::assertMatchesRegularExpression("/[a-z][a-z0-9]+/", (new Builder())->builderId());
-        self::assertEquals('table', (new Builder())->builderId('table')->builderId());
     }
 
     public function testAutoBaseTag()
@@ -109,22 +73,10 @@ class BuilderTest extends TestCase
         self::assertEquals('<div style="width:1px; height:1px;"></div>', (new Builder('div'))->style(['width' => '1px'], ['height' => '1px'])->build());
     }
 
-    public function testAttr()
-    {
-        self::assertInstanceOf(Attribute::class, (new Builder())->attr());
-        self::assertEquals('app', (new Builder(['id' => 'app']))->attr('id'));
-        self::assertEquals('app', (new Builder())->attr(['id' => 'app'])->attr('id'));
-    }
-
-    public function testAttributes()
-    {
-        self::assertEquals(['name' => 'Name',], (new Builder(['name' => 'Name',]))->attributes());
-    }
-
     public function testSet()
     {
-        self::assertEquals(['id' => 1], (new Builder())->set(['id' => 1])->properties());
-        self::assertEquals(['id' => 1], (new Builder())->set('id', 1)->properties());
+        self::assertEquals(['id' => 1], (new Builder())->set(['id' => 1])->attribute->all());
+        self::assertEquals(['id' => 1], (new Builder())->set('id', 1)->attribute->all());
     }
 
     public function testGet()
@@ -132,21 +84,9 @@ class BuilderTest extends TestCase
         self::assertEquals(1, (new Builder())->set(['id' => 1])->get('id'));
     }
 
-    public function testProperties()
+    public function testAttributes()
     {
-        self::assertEquals(['id' => 1], (new Builder())->set(['id' => 1])->properties());
-    }
-
-    public function testConfig()
-    {
-        self::assertInstanceOf(Repository::class, (new Builder())->config());
-        self::assertEquals(1, (new Builder())->config(['id' => 1])->config('id'));
-        self::assertEquals(2, (new Builder())->config(['id' => 1])->config('is', 2));
-    }
-
-    public function testConfigs()
-    {
-        self::assertEquals(['id' => 1], (new Builder())->config(['id' => 1])->configs());
+        self::assertEquals(['id' => 1], (new Builder())->set(['id' => 1])->attributes());
     }
 
     public function testAdd()
@@ -188,34 +128,6 @@ class BuilderTest extends TestCase
         self::assertEquals('hello', (new Builder())->add('hello')->contents());
     }
 
-    public function testBuilderKey()
-    {
-        $builder = new Builder();
-        $namespace = $builder::BUILDER_NAMESPACE . '.' . $builder->builderId();
-
-        self::assertEquals($namespace, $builder->builderKey());
-        self::assertEquals($namespace . '.properties', $builder->builderKey('properties'));
-        self::assertEquals($namespace . '.properties.visible', $builder->builderKey('properties.visible'));
-    }
-
-    public function testPropertyKey()
-    {
-        $builder = new Builder();
-        $namespace = $builder::BUILDER_NAMESPACE . '.' . $builder->builderId();
-
-        self::assertEquals($namespace . '.properties', $builder->propertyKey());
-        self::assertEquals($namespace . '.properties.visible', $builder->propertyKey('visible'));
-    }
-
-    public function testConfigKey()
-    {
-        $builder = new Builder();
-        $namespace = $builder::BUILDER_NAMESPACE . '.' . $builder->builderId();
-
-        self::assertEquals($namespace . '.configs', $builder->configKey());
-        self::assertEquals($namespace . '.configs.visible', $builder->configKey('visible'));
-    }
-
     public function testBuildable()
     {
         self::assertFalse((new Builder())->buildable(false)->isBuildable());
@@ -225,13 +137,6 @@ class BuilderTest extends TestCase
     public function testIsBuildable()
     {
         self::assertTrue((new Builder())->isBuildable());
-    }
-
-    public function testBuilders()
-    {
-        $builder = (new Builder('div'))->build();
-        self::assertInstanceOf(Builder::class, last(Builder::builders()));
-        self::assertEquals($builder, last(Builder::builders()));
     }
 
     public function testCall()
@@ -275,40 +180,6 @@ class BuilderTest extends TestCase
     {
         self::assertEquals('<div style="color:red;"></div>', (new Builder('div'))->style(['color' => 'red']));
     }
-
-    public function testBuildAboutProperties()
-    {
-        $build = (new Builder('div'))->set('id', 1);
-        self::assertEquals(
-            '<div v-bind="' . Builder::BUILDER_NAMESPACE . '.' . $build->builderId() . '.properties"></div>',
-            $build->build()
-        );
-        self::assertEquals(['id' => 1], $build->properties());
-    }
-
-    public function testPlaceholderInConstruct()
-    {
-        $builder = new Builder('div', [':visible' => '*.visible']);
-        self::assertEquals('<div :visible="' . Builder::BUILDER_NAMESPACE . '.' . $builder->builderId() . '.visible"></div>', $builder->build());
-    }
-
-    public function testPlaceholderInSetAttr()
-    {
-        $builder = new Builder('div');
-        self::assertEquals('<div :visible="' . Builder::BUILDER_NAMESPACE . '.' . $builder->builderId() . '.visible"></div>', $builder->attr([':visible' => '*.visible'])->build());
-    }
-
-    public function testPropertyPlaceholder()
-    {
-        $builder = new Builder('div', [':visible' => '@.visible']);
-        self::assertEquals('<div :visible="' . Builder::BUILDER_NAMESPACE . '.' . $builder->builderId() . '.properties.visible"></div>', $builder->build());
-    }
-
-    public function testConfigPlaceholder()
-    {
-        $builder = new Builder('div', [':visible' => '#.visible']);
-        self::assertEquals('<div :visible="' . Builder::BUILDER_NAMESPACE . '.' . $builder->builderId() . '.configs.visible"></div>', $builder->build());
-    }
 }
 
 class TestClassAttribute extends Builder
@@ -318,8 +189,6 @@ class TestClassAttribute extends Builder
     protected $closing = false;
     protected $linebreak = true;
     protected $attributes = ['id' => 1];
-    protected $properties = ['id' => 1];
-    protected $configs = ['id' => 1];
     protected $buildable = false;
 }
 
